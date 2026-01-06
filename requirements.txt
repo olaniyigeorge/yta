@@ -1,4 +1,4 @@
-annotated-types==0.7.0
+ÿþannotated-types==0.7.0
 anyio==4.12.0
 cachetools==6.2.4
 certifi==2026.1.4
