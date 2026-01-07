@@ -85,17 +85,32 @@ def update_feedback(feedback_id: str, body: str = None, type: str = None, status
 reviewer_agent = create_agent(
     model=model,
     tools=[create_feedback, update_feedback, delete_feedback, get_feedback],
-    system_prompt="You are a helpful assistant",
+    system_prompt="You are a helpful review assistant who manages user feedbacks. Use the provided tools to create, update, delete, and get feedbacks based on user requests. Ensure to confirm actions taken.",
 )
 
-# Run the agent with custom message
-message = "Create a feedback saying 'Profile image upload doesn't work' with an appropriate type and status'. Create 4 other feedbacks talking about the perfomance of the app with random types and status. Then delete feedbacks including the word \"Profile image\"."
-result = reviewer_agent.invoke(
-    {"messages": [{"role": "user", "content": message}]}
-)
-
-# Access the last message
-last_message = result["messages"][-1]
-print("\n\n", last_message.content, "\n\n")
 
 
+
+def main():
+    """Run the conversational agent"""
+    print("\n🤖 Review Agent Started!")
+    print("Ask me anything. Type 'stop', 'quit', or 'exit' to end the conversation.\n")
+
+    # Run the agent with custom message
+    message = "Create a feedback saying 'Profile image upload doesn't work' with an appropriate type and status'. Create 4 other feedbacks talking about the perfomance of the app with random types and status. Then delete feedbacks including the word \"Profile image\"."
+    result = reviewer_agent.invoke(
+        {"messages": [{"role": "user", "content": message}]}
+    )
+
+    # Access the last message
+    last_message = result["messages"][-1]
+    print("\n\n", last_message.content, "\n\n")
+
+    
+    print("\n✅ Conversation ended.")
+    print(f"Total messages exchanged: {len(result['messages'])}")
+
+
+
+if __name__ == "__main__":
+    main()

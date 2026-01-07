@@ -159,3 +159,8 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+
+# TODO Use google.genai client context managers in fastapi app lifespan

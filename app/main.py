@@ -1,11 +1,5 @@
-# from fastapi import FastAPI
-# import uvicorn
-
-# from fastapi.templating import Jinja2Templates
-# from fastapi.staticfiles import StaticFiles
-# from fastapi import Request
-# from dotenv import load_dotenv
-# from contextlib import asynccontextmanager
+from fastapi import FastAPI
+import uvicorn
 
 # load_dotenv()
 
