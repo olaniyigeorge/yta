@@ -9,7 +9,7 @@
 # async def lifespan(app: FastAPI):
 #     """ TODO: investigate impact on performance
 #         Manages the lifespan of the yta-api App. It
-#         initializes the database manager which manages 
+#         initializes the database manager which manages
 #         data on server wake up and cleanly closes it on
 #         shutdown
 #     """
@@ -26,9 +26,9 @@
 
 #         # db_manager.initialize(AppConfig.DATABASE_URL, **engine_kwargs)
 
-#         # # Create tables 
+#         # # Create tables
 #         # await db_manager.create_tables()
-        
+
 
 #         # logger.info("Application startup complete")
 #         yield
@@ -67,12 +67,10 @@
 #     )
 
 
-
 # if __name__ == "__main__":
 #     uvicorn.run(
-#         "main:app", 
-#         host="0.0.0.0", 
-#         reload=True, 
+#         "main:app",
+#         host="0.0.0.0",
+#         reload=True,
 #         port=8000
 #     )
-

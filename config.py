@@ -3,6 +3,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 from logger import logger
 
+
 class GlobalConfig(BaseSettings):
     ENV: str = "development"
     PORT: int = 8000
@@ -13,16 +14,16 @@ class GlobalConfig(BaseSettings):
     LANGSMITH_API_KEY: str = "your-langsmith-api-key"
     LANGSMITH_WORKSPACE_ID: str = "your-workspace-id"
 
-
-
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
 
 class DevConfig(GlobalConfig):
     pass
 
+
 class TestConfig(GlobalConfig):
     pass
+
 
 class ProdConfig(GlobalConfig):
     pass
@@ -35,6 +36,7 @@ def get_config():
         raise ValueError(f"Invalid ENVT_STATE: {env_state}")
     logger.info(f"\nUsing {env_state.capitalize()} config...\n")
     return configs[env_state]()
+
 
 # Lazy config loading to avoid import-time errors
 def get_lazy_config():
@@ -51,6 +53,7 @@ def get_lazy_config():
             LANGSMITH_TRACING: bool = True
             LANGSMITH_API_KEY: str = "your-langsmith-api-key"
             LANGSMITH_WORKSPACE_ID: str = "your-workspace-id"
+
         return DefaultConfig()
 
 

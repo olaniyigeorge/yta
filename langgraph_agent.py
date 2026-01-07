@@ -7,6 +7,7 @@ from config import AppConfig
 
 # Configure your LLM - example with Google's Gemini
 from google import genai
+
 client = genai.Client(api_key=AppConfig.GEMINI_API_KEY)
 
 # Or with OpenAI:
@@ -20,6 +21,7 @@ client = genai.Client(api_key=AppConfig.GEMINI_API_KEY)
 
 class ConversationState(BaseModel):
     """State for the conversation workflow"""
+
     messages: Annotated[List[dict], operator.add] = Field(default_factory=list)
     current_question: str = ""
     should_continue: bool = True
@@ -37,27 +39,26 @@ def print_tool(text: str) -> str:
 def get_user_input(state: ConversationState) -> dict:
     """Get input from the user"""
     user_input = input("👤 You: ").strip()
-    
+
     # Check if user wants to stop
     stop_words = ["stop", "quit", "exit", "bye", "goodbye"]
     should_continue = user_input.lower() not in stop_words
-    
+
     return {
         "messages": [{"role": "user", "content": user_input}],
         "current_question": user_input,
-        "should_continue": should_continue
+        "should_continue": should_continue,
     }
 
 
 def answer_question(state: ConversationState) -> dict:
     """Use LLM to answer the user's question with conversation history"""
-    
+
     # Build context from conversation history
-    conversation_context = "\n".join([
-        f"{msg['role']}: {msg['content']}" 
-        for msg in state.messages
-    ])
-    
+    conversation_context = "\n".join(
+        [f"{msg['role']}: {msg['content']}" for msg in state.messages]
+    )
+
     # Create prompt with context
     prompt = f"""You are a helpful assistant. Here's our conversation so far:
 
@@ -80,7 +81,7 @@ def answer_question(state: ConversationState) -> dict:
     #     messages=[{"role": "user", "content": prompt}]
     # )
     # answer = response.choices[0].message.content
-    
+
     # For Anthropic Claude:
     # response = client.messages.create(
     #     model="claude-3-5-sonnet-20241022",
@@ -90,13 +91,14 @@ def answer_question(state: ConversationState) -> dict:
     # answer = response.content[0].text
 
     # Mock answer for demonstration (replace with actual LLM call)
-    answer = answer or f"This is a mock answer to: '{state.current_question}'. Please configure your LLM provider above."
+    answer = (
+        answer
+        or f"This is a mock answer to: '{state.current_question}'. Please configure your LLM provider above."
+    )
 
     print_tool(answer)
-    
-    return {
-        "messages": [{"role": "assistant", "content": answer}]
-    }
+
+    return {"messages": [{"role": "assistant", "content": answer}]}
 
 
 def should_continue_conversation(state: ConversationState) -> str:
@@ -112,25 +114,20 @@ def should_continue_conversation(state: ConversationState) -> str:
 def create_conversation_graph():
     """Create and compile the conversation graph"""
     graph = StateGraph(ConversationState)
-    
+
     # Add nodes
     graph.add_node("get_input", get_user_input)
     graph.add_node("answer", answer_question)
-    
+
     # Add edges
     graph.add_edge(START, "get_input")
     graph.add_edge("get_input", "answer")
-    
+
     # Add conditional edge to loop or end
     graph.add_conditional_edges(
-        "answer",
-        should_continue_conversation,
-        {
-            "get_input": "get_input",
-            "end": END
-        }
+        "answer", should_continue_conversation, {"get_input": "get_input", "end": END}
     )
-    
+
     return graph.compile()
 
 
@@ -138,28 +135,24 @@ def main():
     """Run the conversational agent"""
     print("\n🤖 Conversational Agent Started!")
     print("Ask me anything. Type 'stop', 'quit', or 'exit' to end the conversation.\n")
-    
+
     # Create and run the graph
     graph = create_conversation_graph()
-    
+
     # Initialize state
     initial_state = ConversationState(
-        messages=[],
-        current_question="",
-        should_continue=True
+        messages=[], current_question="", should_continue=True
     )
-    
+
     # Run the graph
     final_state = graph.invoke(initial_state)
-    
+
     print("\n✅ Conversation ended.")
     print(f"Total messages exchanged: {len(final_state['messages'])}")
 
 
 if __name__ == "__main__":
     main()
-
-
 
 
 # TODO Use google.genai client context managers in fastapi app lifespan

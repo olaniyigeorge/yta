@@ -19,7 +19,7 @@ yta/
 │   ├── main.py                  # entry point
 │   ├── config.py
 │   ├── workflows/
-│   │   ├── youtube_graph.py     # LangGraph definition
+│   │   ├── youtube_graph.py     # Complete YTA workflow represented as a Graph
 │   │   └── states.py            # Typed state objects
 │   ├── agents/
 │   │   ├── niche_agent.py
