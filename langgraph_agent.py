@@ -61,12 +61,11 @@ def answer_question(state: ConversationState) -> dict:
     # Create prompt with context
     prompt = f"""You are a helpful assistant. Here's our conversation so far:
 
-{conversation_context}
+        {conversation_context}
 
-Please provide a helpful and concise answer to the user's question."""
-    
-    # Example with different LLM providers (uncomment the one you're using):
-    
+        Please provide a helpful and concise answer to the user's question.
+    """
+
     # For Google Gemini:
     response = client.models.generate_content(
         model="gemini-2.5-flash",
@@ -74,7 +73,7 @@ Please provide a helpful and concise answer to the user's question."""
     )
 
     answer = response.text
-    
+
     # For OpenAI:
     # response = client.chat.completions.create(
     #     model="gpt-4",
@@ -89,10 +88,10 @@ Please provide a helpful and concise answer to the user's question."""
     #     messages=[{"role": "user", "content": prompt}]
     # )
     # answer = response.content[0].text
-    
+
     # Mock answer for demonstration (replace with actual LLM call)
     answer = answer or f"This is a mock answer to: '{state.current_question}'. Please configure your LLM provider above."
-    
+
     print_tool(answer)
     
     return {

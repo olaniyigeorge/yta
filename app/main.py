@@ -1,5 +1,5 @@
-from fastapi import FastAPI
-import uvicorn
+# from fastapi import FastAPI
+# import uvicorn
 
 # load_dotenv()
 

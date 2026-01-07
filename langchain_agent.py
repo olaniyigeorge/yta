@@ -108,7 +108,11 @@ def main():
 
     
     print("\n✅ Conversation ended.")
-    print(f"Total messages exchanged: {len(result['messages'])}")
+    print(f"Total messages exchanged: {len(result['messages'])}\n\n")
+
+    for msg in result['messages']:
+        
+        print(f"\n{msg}\n\n")
 
 
 
