@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-from logger import logger
+from utils.logger import logger
 
 
 class GlobalConfig(BaseSettings):
@@ -11,8 +11,8 @@ class GlobalConfig(BaseSettings):
     CLIENT_DOMAIN: str = "http://localhost:8000"
     GEMINI_API_KEY: str = "test"
     LANGSMITH_TRACING: bool = True
-    LANGSMITH_API_KEY: str = "your-langsmith-api-key"
-    LANGSMITH_WORKSPACE_ID: str = "your-workspace-id"
+    LANGSMITH_API_KEY: str = "langsmith-api-key"
+    LANGSMITH_WORKSPACE_ID: str = "langsmith-workspace-id"
 
     model_config = SettingsConfigDict(env_file=".env", extra="ignore")
 
@@ -22,7 +22,7 @@ class DevConfig(GlobalConfig):
 
 
 class TestConfig(GlobalConfig):
-    pass
+    ENV: str = "test"
 
 
 class ProdConfig(GlobalConfig):
@@ -30,7 +30,7 @@ class ProdConfig(GlobalConfig):
 
 
 def get_config():
-    env_state = GlobalConfig().ENV.lower()  # Load from `.env` automatically
+    env_state = GlobalConfig().ENV.lower()
     configs = {"development": DevConfig, "production": ProdConfig, "test": TestConfig}
     if env_state not in configs:
         raise ValueError(f"Invalid ENVT_STATE: {env_state}")
@@ -43,18 +43,7 @@ def get_lazy_config():
     try:
         return get_config()
     except Exception:
-        # Return a default config for testing
-        class DefaultConfig:
-            ENV = "test"
-            PORT = 8000
-            PROJECT_NAME = "YTA"
-            CLIENT_DOMAIN = "http://localhost:8000"
-            GEMINI_API_KEY = "test"
-            LANGSMITH_TRACING: bool = True
-            LANGSMITH_API_KEY: str = "your-langsmith-api-key"
-            LANGSMITH_WORKSPACE_ID: str = "your-workspace-id"
-
-        return DefaultConfig()
+        return DevConfig()
 
 
 AppConfig: GlobalConfig = get_lazy_config()

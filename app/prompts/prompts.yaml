@@ -17,9 +17,3 @@ niche_discovery:
         "niche": "string",
         "reasoning": "string"
     }
-
-strategy_agent:
-  system: |
-    You are a YouTube strategy expert...
-  user: |
-    Create a content strategy for...

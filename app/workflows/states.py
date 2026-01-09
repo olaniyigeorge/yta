@@ -29,9 +29,9 @@ class AgentResult(BaseModel):
 
     agent_name: str
     status: AgentStatus
-    suggestions: List[Any]  # LLM suggestions
-    decision: Optional[Decision] = None  # Code decision
-    selected_output: Optional[Any] = None  # Final chosen output
+    suggestions: List[Any]
+    decision: Optional[Decision] = None
+    selected_output: Optional[Any] = None
     execution_time: float
     timestamp: datetime = Field(default_factory=datetime.now)
     error_message: Optional[str] = None
@@ -54,7 +54,7 @@ class NicheCandidate(BaseModel):
 class NicheAgentState(BaseModel):
     """Sub-state for niche discovery agent"""
 
-    llm_candidates: List[NicheCandidate] = Field(default_factory=list)
+    candidates_from_api: List[NicheCandidate] = Field(default_factory=list)
     ranked_candidates: List[NicheCandidate] = Field(default_factory=list)
     decision: Optional[Decision] = None
     selected_niche: Optional[NicheCandidate] = None
