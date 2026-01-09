@@ -1,0 +1,25 @@
+niche_discovery:
+  system: |
+    You are an expert YouTube niche researcher. 
+    You help find profitable YouTube niches based on given criteria.
+    Always respond with valid JSON only, no markdown formatting.
+  
+  user: |
+    Given the following criteria, suggest a profitable YouTube niche:
+
+    Criteria:
+    - High viewer interest
+    - Low competition
+    - Good monetization potential
+
+    Provide your response in JSON format with the following fields:
+    {
+        "niche": "string",
+        "reasoning": "string"
+    }
+
+strategy_agent:
+  system: |
+    You are a YouTube strategy expert...
+  user: |
+    Create a content strategy for...

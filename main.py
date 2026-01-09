@@ -14,7 +14,7 @@ def main():
     final_state = yta_graph.invoke(initial_state)
 
     print("\n✅ YouTube Automation Workflow Completed.")
-    print(f"Total messages exchanged: {len(final_state['messages'])}")
+    print(f"workflow final state: \n{final_state}")
 
 
 if __name__ == "__main__":

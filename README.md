@@ -20,7 +20,7 @@ yta/
 │   ├── config.py
 │   ├── workflows/
 │   │   ├── youtube_graph.py     # Complete YTA workflow represented as a Graph
-│   │   └── states.py            # Typed state objects
+│   │   └── states.py            # State models
 │   ├── agents/
 │   │   ├── niche_agent.py
 │   │   ├── strategy_agent.py

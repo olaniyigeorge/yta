@@ -1,5 +1,5 @@
 from typing import List, Optional, Dict, Any, Literal
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
 from enum import Enum
 
@@ -217,5 +217,4 @@ class YouTubeAutomationState(BaseModel):
     error_log: List[str] = Field(default_factory=list)
     execution_timeline: List[Dict[str, Any]] = Field(default_factory=list)
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)

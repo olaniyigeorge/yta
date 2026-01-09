@@ -1,64 +1,104 @@
 import json
-
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.agents import create_agent
-
+from langchain_core.prompts import ChatPromptTemplate
 from config import AppConfig
-
-
-# TODO : Setup a dict of models with thier params and
-# strengths/weaknesses and let user's(and superagents) pick from them
-
-model = ChatGoogleGenerativeAI(
-    model="gemini-2.5-flash-lite",
-    api_key=AppConfig.GEMINI_API_KEY,
-    temperature=1.0,
-    max_tokens=500,
-    timeout=None,
-    max_retries=2,
-)
-
-reviewer_agent = create_agent(
-    model=model,
-    tools=[],
-    system_prompt="You are a helpful review assistant who manages user feedbacks. Use the provided tools to create, update, delete, and get feedbacks based on user requests. Ensure to confirm actions taken.",
-)
+from app.workflows.states import YouTubeAutomationState, NicheCandidate, NicheAgentState
 
 
 class NicheDiscoveryAgent:
     """Agent to discover profitable YouTube niches"""
 
     def __init__(self):
-        self.agent = reviewer_agent
+        self.model = ChatGoogleGenerativeAI(
+            model="gemini-2.5-flash-lite",
+            api_key=AppConfig.GEMINI_API_KEY,
+            temperature=1.0,
+            max_tokens=500,
+            timeout=None,
+            max_retries=2,
+        )
 
-    def run(self, state: dict) -> dict:
-        # TODO: extract prompts to prompt.yaml to be easily modifiable
-        prompt = f"""You are an expert YouTube niche researcher. 
-        Given the following criteria, suggest a profitable YouTube niche:
+        self.prompt_template = ChatPromptTemplate.from_messages(
+            [
+                (
+                    "system",
+                    """You are an expert YouTube niche researcher. 
+                You help find profitable YouTube niches based on given criteria.
+                Always respond with valid JSON only, no markdown formatting.""",
+                ),
+                (
+                    "human",
+                    """Given the following criteria, suggest a profitable YouTube niche:
 
-        Criteria:
-        - High viewer interest
-        - Low competition
-        - Good monetization potential
+                Criteria:
+                - High viewer interest
+                - Low competition
+                - Good monetization potential
 
-        Provide your response in JSON format with the following fields:
-        {{
-            "niche": "string",
-            "reasoning": "string"
-        }}
+                Provide your response in JSON format with the following fields:
+                {{
+                    "niche": "string",
+                    "reasoning": "string"
+                }}""",
+                ),
+            ]
+        )
 
-        Current State:
-        {json.dumps(state, indent=2)}
+        self.chain = self.prompt_template | self.model
+
+    def run(self, state: YouTubeAutomationState) -> YouTubeAutomationState:
         """
+        Return a new state object with updates.
+        """
+        response = self.chain.invoke({})
+        response_text = response.content
 
-        response = self.agent.run(prompt)
+        # Parse response
+        response_text = response_text.strip()
+        if "```json" in response_text:
+            response_text = response_text.split("```json")[1].split("```")[0].strip()
+        elif "```" in response_text:
+            response_text = response_text.split("```")[1].split("```")[0].strip()
 
         try:
-            niche_data = json.loads(response)
-            state["niche"] = niche_data.get("niche", "General")
-            state["niche_reasoning"] = niche_data.get("reasoning", "")
-        except json.JSONDecodeError:
-            state["niche"] = "General"
-            state["niche_reasoning"] = "Failed to parse agent response."
+            niche_data = json.loads(response_text)
+            niche_name = niche_data.get("niche", "General")
+            reasoning = niche_data.get("reasoning", "")
 
-        return state
+            # Create a NicheCandidate
+            candidate = NicheCandidate(
+                name=niche_name,
+                search_demand=0.7,
+                trend_velocity=0.5,
+                competition_score=0.3,
+                estimated_rpm=5.0,
+                monetization_score=0.8,
+                final_score=0.75,
+                metadata={"reasoning": reasoning},
+            )
+
+            # Create updated niche state
+            updated_niche_state = NicheAgentState(
+                llm_candidates=[candidate], selected_niche=candidate
+            )
+
+            # Create a copy of the state with updates
+            return state.model_copy(
+                update={
+                    "niche_state": updated_niche_state,
+                    "current_stage": "niche_discovery_complete",
+                }
+            )
+
+        except json.JSONDecodeError as e:
+            print(f"JSON Parse Error: {e}")
+            print(f"Response was: {response_text}")
+
+            # Return state with error
+            error_log = state.error_log + [f"Failed to parse niche response: {str(e)}"]
+            return state.model_copy(
+                update={
+                    "current_stage": "niche_discovery_failed",
+                    "error_log": error_log,
+                }
+            )
